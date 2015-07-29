@@ -1,0 +1,132 @@
+\documentclass{article}
+%\usepackage{tex4ht}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{color}
+\usepackage{float}
+
+\setlength{\parskip}{0.5\baselineskip}
+\title{Lecture Notes on Machine Learning}
+\date{February 25, 2014}
+
+\definecolor{lightgray}{gray}{0.5}
+\newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+\newtheorem{propostion}{Propostion}
+\newtheorem*{remark}{Remark}
+
+\begin{document}
+\maketitle
+
+First, we will introduce how to build a classifier on multiple classes, we use the so-called strategy ``one v.s. rest''. Suppose in a data set, we 
+have multiple classes: $C_{1}$, $C_{2}$, $C_{3}$, $C_{4}$, based on the method we use, we can build four binary classifiers $L_{i}$, which is defined
+as:
+\begin{equation*}
+ \begin{cases}
+  L_{i}(x) > 0 \Longrightarrow x \ in \ class \ C_{i}, \\
+  L_{i}(x) < 0 \Longrightarrow x \ in \ class \ M_{i}.
+ \end{cases}
+\end{equation*}
+where $M_{i} = C_{1}\cup...\cup C_{i-1}\cup C_{i+1}\cup...\cup C_{4}$. Then we define the scores on class $C_{i}$ by $\max\{L_{i}(x),0\}$, compare all 
+the scores on different classes, then $x$ is predicted to be in the class with maximum score.
+
+In previous lecture, we introduced the Gaussian kernel, and in this lecture, we will introduce a new kernel -- polynomial kernel. It is defined as:
+\begin{equation*}
+ k(x,y) = (1+<x,y>)^{r}
+\end{equation*}
+where $x,y \in \mathbb{R}^{p}$, and $r$ is an integer and usually selected as $r \leq 5$. 
+
+To show it is a kernel, we need to show the matrix $M$ with entries $M_{i,j} = k(x_{i},x_{j})$ is positive definite. To prove this, we need one
+important propostion:
+\begin{propostion}
+ If $A(x,y)$ ,$B(x,y)$ are kernels, then
+ \begin{equation*}
+  \begin{cases}
+   k(x,y) =  A(x,y)+B(x,y)\\
+   k(x,y) =  A(x,y)B(x,y)
+  \end{cases}
+\end{equation*}
+ are also kernel.
+\end{propostion}
+Here, it is not difficult to find the matrix defined by functions $k_{1}(x,y) = 1$ and $k_{2}(x,y) = <x,y>$ are positive definite. Therefore, 
+$k(x,y) = (1+<x,y>)^{r}$ is a kernel by applying above propostion.
+
+Next, we will take a quick review on SVM (support vector machine). Consider the Euclidean model of SVM build on feature space $\mathbb{R}^{p}$,
+where
+\begin{equation*}
+ x_{i}(observation) \Longrightarrow y_{i}(label) \begin{cases} +1 \ in \ 1st \ class \\ -1 \ in \ 2nd \ class \end{cases}
+\end{equation*}
+
+We want to get a seperator function:
+\begin{equation*}
+ g(x) = <u,x> + b
+\end{equation*}
+where we will have the prediction on $x$:
+\begin{equation*}
+  \begin{cases}
+   g(x) > 0 \Longrightarrow class \ 1\\
+   g(x) < 0 \Longrightarrow class \ 2
+  \end{cases}
+\end{equation*}
+However, when we build SVM on training set $\{x_{i}\}$, it is required that:
+\begin{equation*}
+  \begin{cases}
+   g(x_{i}) \geq 1 \Longrightarrow class \ 1\\
+   g(x_{i}) \leq -1 \Longrightarrow class \ 2
+  \end{cases}
+\end{equation*}
+which is equivalent to
+\begin{equation*}
+  y_{i}g(x_{i})-1 \geq 0
+\end{equation*}
+Define the size of error by
+\begin{equation*}
+  \xi_{i} = \max(0, 1-y_{i}g(x_{i}))
+\end{equation*}
+then, in order to find $u$, $b$, we need to solve the following minimization problem:
+\begin{equation*}
+ \min\{\frac{1}{2}||u||^{2} + c\sum \xi_{i}\}
+\end{equation*}
+with constraints
+\begin{equation*}
+ \begin{cases}
+  \xi_{i} \geq 0 \\
+  \xi_{i}-(1-y_{i}g(x_{i})) \geq 0
+ \end{cases}
+\end{equation*}
+
+To solve this problem, we need to introduce Lagrange multipliers $\alpha_{i},\beta_{i} \geq 0$, and use KKT algorithm, we will get a saddle point
+problem:
+\begin{equation*}
+  L(U) = \frac{1}{2}||u||^{2} + c\sum \xi_{i} - \sum \alpha_{i}(\xi_{i}-(1-y_{i}g(x_{i}))) - \sum \beta_{i}\xi_{i}
+\end{equation*}
+take partial derivatives, which are equal to 0:
+\begin{equation*}
+ \begin{aligned}
+  \frac{\partial L}{\partial u} = 0 \Longrightarrow u = \sum \alpha_{i}y_{i}x_{i} \\
+  \frac{\partial L}{\partial b} = 0 \Longrightarrow \sum \alpha_{i}y_{i} = 0 \\
+  \frac{\partial L}{\partial \xi_{i}} = 0 \Longrightarrow \alpha_{i} + \beta_{i} = c
+ \end{aligned}
+\end{equation*}
+Let $G(\alpha, \beta) = \min L(U)$, then we need to solve the max problem:
+\begin{equation*}
+ \max_{0 \leq \alpha_{i} \leq c} G(\alpha,\beta)
+\end{equation*}
+To solve this max problem, we need to compare all the values on all the corners of $(\alpha,\beta)$. Since $u$ is the linear combination of $x_{i}$
+with $\alpha_{i}>0$, we call all of these $x_{i}$ to be support vectors.
+
+We need to check the performance on both training and test sets, in order to have good generalization capacity, we don't want to see significant
+difference between these two accuracies. For SVM, this condition will be satisfied if
+\begin{equation*}
+ aver(\frac{\# \ of \ support \ vectors}{N})
+\end{equation*}
+is small, where $N$ is the total number of observations in training set.
+
+\end{document}
+
+

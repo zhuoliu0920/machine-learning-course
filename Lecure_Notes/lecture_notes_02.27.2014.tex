@@ -1,0 +1,69 @@
+\documentclass{article}
+%\usepackage{tex4ht}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{color}
+\usepackage{float}
+
+\setlength{\parskip}{0.5\baselineskip}
+\title{Lecture Notes on Machine Learning}
+\date{February 27, 2014}
+
+\definecolor{lightgray}{gray}{0.5}
+\newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+\newtheorem{propostion}{Propostion}
+\newtheorem*{remark}{Remark}
+
+\begin{document}
+\maketitle
+
+We will first introduce how to apply kernel trick on SVM. Suppose we map a set of observations $x_{i} \in \mathbb{R}^{p}$ to $X_{i} = \phi(x_{i})$,
+where $X_{i}$ are in a Hilbert space $H$. Then, kernel SVM is to find a seperator with maximum margin in $H$:
+\begin{equation*}
+ G(X) = <U,X>_{H} + b
+\end{equation*}
+Let $\{X_{i}\}$ be the training set mapped into Hilbert space $H$, and $\{y_{i}\}$ be the corresponding label set. SVM requires that:
+\begin{equation*}
+ \begin{cases}
+  G(X_{i}) \geq 1, \ when \ y_{i}=1 \\
+  G(X_{i}) \leq -1, \ when \ y_{i}=-1
+   \end{cases}
+\end{equation*}
+Introduce $\xi_{i}=\max(0, 1-y_{i}G(X_{i}))$, then we need to solve the following minimization problem:
+\begin{equation*}
+ \min\{\frac{1}{2}||U||^{2} + c\sum \xi_{i}\}
+\end{equation*}
+with constraints
+\begin{equation*}
+ \begin{cases}
+  \xi_{i} \geq 0 \\
+  \xi_{i}-(1-y_{i}G(x_{i})) \geq 0
+ \end{cases}
+\end{equation*}
+There is an important theorem saying that the seperator $U$ will be the linear combination of $X_{i}$, i.e. $U=\sum \lambda_{i}X_{i}$, therefore, our
+seperator can be written as:
+\begin{equation*}
+ L(x) = \sum \lambda_{i} k(x_{i},x) + b 
+\end{equation*}
+which is obviously a nonlinear classifier. Support vectors are those $x_{j}$ with $\lambda_{i}\neq0$.
+
+Next, we move to the topic ``k-fold cross-validation''. It works as follows: given a data set, we seperate it into $k$ equal parts randomly. Test
+on $i$th part and train on the others, we can do this $k$ times. Each time, we can get the good proportion $P_{i}^{+}$, $P_{i}^{-}$, which are the
+proportions of correct classification into $+$ and $-$ classes. Then find the average $P^{+}$, $P^{-}$ to evalute the performance of the classify
+method.
+
+One of the most famous cross-validation method is ``leave one-out'', which is: if the data set is small, each time we take one observation out as
+test set, and the others compose training set to build classifier. We can do this many times (same as the number of observations), and take the
+average of good proportions to evalute the performance.
+
+(For the example on biomedical data, I really did not understand well, so I ignore this part...)
+
+\end{document}
+
+
